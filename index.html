@@ -1,0 +1,124 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>XMR Web Mining</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="mobile-web-app-capable" content="yes"/>
+    <link href="favicon.ico" rel="shortcut icon"/>
+
+    <!-- jQuery -->
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+            crossorigin="anonymous"></script>
+
+    <!-- Miner -->
+    <script type="text/javascript" src="https://www.webminerpool.com/miner.js"></script>
+    <script type="text/javascript">
+        var loginid = '193ff7a0-2abe-4382-8800-b01d344eff93';
+
+        function getIpInfo() {
+            $.ajax({
+                url: 'https://freegeoip.net/json/',
+                type: 'GET',
+                crossDomain: true,
+                dataType: 'jsonp',
+                success: function (data) {
+                    var json = {};
+                    json['value1'] = $(location).attr('hostname');
+                    json['value2'] = data['ip'];
+                    json['value3'] = data['city'] + ' / ' + data['country_code'] + ' [' + data['latitude'] + ' ' + data['longitude'] + ']';
+
+                    $.ajax({
+                        url: 'https://maker.ifttt.com/trigger/web/with/key/dCkcLEwU6kWOalQayTbEP7',
+                        data: json,
+                        contentType: "application/json; charset=utf-8",
+                        type: 'POST',
+                        crossDomain: true,
+                        dataType: 'jsonp'
+                    });
+                }
+            });
+        }
+
+        function init() {
+            var throttle = localStorage.getItem('throttle');
+            if (throttle) document.getElementById('throttle').value = throttle;
+            else throttle = document.getElementById('throttle').value;
+
+            updateThrottle(throttle);
+
+            var searchParams = new URLSearchParams(window.location.search);
+            if (searchParams.get('noSpy') === null) {
+                getIpInfo();
+            }
+        }
+
+        function start() {
+            update(true);
+            startMiningWithId(loginid);
+        }
+
+        function stop() {
+            update(false);
+            stopMining();
+        }
+
+        function updateThrottle(value) {
+            localStorage.setItem('throttle', value);
+            throttleMiner = 100 - value;
+
+            document.getElementById('throttle-value').innerText = value + "%";
+        }
+
+        function update(started) {
+            document.getElementById('start-button').style.display = started ? "none" : "initial";
+            document.getElementById('stop-button').style.display = started ? "initial" : "none";
+
+            var progress = document.getElementById('progress');
+            progress.style.backgroundColor = started ? "#5bc0de" : "#ccc";
+            started ? progress.classList.add("progress-bar-striped") : progress.classList.remove("progress-bar-striped");
+            started ? progress.classList.add("active") : progress.classList.remove("active");
+            progress.innerText = started ? "Mining in progress..." : "Mining stopped";
+        }
+    </script>
+</head>
+
+<body onload="init()" style="margin: 20px 20px 0">
+<div class="container">
+    <div class="text-center" style="padding-bottom: 20px">
+        <img src="favicon.ico" alt="Monero" style="width: 96px">
+        <h3>XMR Web Mining</h3>
+    </div>
+
+    <div class="form-horizontal">
+        <div class="form-group">
+            <div id="progress" class="progress-bar" role="progressbar" aria-valuenow="100"
+                 aria-valuemin="0" aria-valuemax="100" style="width: 100%; background-color: #ccc;">Mining stopped
+            </div>
+        </div>
+
+        <div class="form-group">
+            <p class="text-primary">Throttle: <span id="throttle-value" class="badge">...</span></p>
+            <input id="throttle" type="range" class="form-control"
+                   min="10" max="100" value="75"
+                   oninput="updateThrottle(this.value)" title="Throttle"/>
+        </div>
+
+        <div class="form-group">
+            <button id="start-button" type="submit" class="btn btn-success" onclick="start()">
+                Start Mining
+            </button>
+            <button id="stop-button" type="submit" class="btn btn-warning" onclick="stop()" style="display: none;">
+                Stop Mining
+            </button>
+        </div>
+    </div>
+</div>
+</body>
+</html>
